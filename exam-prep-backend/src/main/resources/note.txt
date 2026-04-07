@@ -1,0 +1,4 @@
+400: lỗi người dùng
+401: lỗi xác thực
+403: lỗi phân quyền
+500: lỗi hệ thống

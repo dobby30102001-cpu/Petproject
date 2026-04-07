@@ -1,0 +1,8 @@
+{
+    "email": "test+api@example.com",
+    "username": "testuser",
+    "password": "secret123",
+    "confirmPassword": "secret123",
+    "firstName": "Test",
+    "lastName": "User"
+}
