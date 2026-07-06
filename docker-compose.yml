@@ -1,0 +1,71 @@
+# Full-stack Docker Compose for the exam-prep project.
+#
+# Expected on-disk layout (two sibling git repos):
+#   <parent>/
+#     ├── Petproject/                  (this repo, contains this file)
+#     │   └── exam-prep-backend/
+#     └── FrontendPetproject/
+#         └── exam-prep-frontend/
+#
+# Run from this file's directory:
+#   docker compose up -d --build
+#
+# If you only cloned Petproject, the `frontend` service will fail to build.
+# In that case run just the backend + database:
+#   docker compose up -d mysql backend
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: petproject-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: exam_management_system
+    # Host port 3307 to avoid clashing with a local MySQL service on 3306.
+    # Backend inside Docker still reaches MySQL via internal DNS "mysql:3306".
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./exam-prep-backend/src/main/resources/data.sql:/docker-entrypoint-initdb.d/data.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  backend:
+    build: ./exam-prep-backend
+    container_name: petproject-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/exam_management_system
+      DB_USERNAME: root
+      DB_PASSWORD: root
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ../FrontendPetproject/exam-prep-frontend
+    container_name: petproject-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      # Browser calls the backend directly on the host, so localhost is correct here.
+      VITE_API_URL: http://localhost:8080/api
+    ports:
+      - "5173:5173"
+    # Live-reload source into the container so edits show up without rebuild.
+    volumes:
+      - ../FrontendPetproject/exam-prep-frontend/src:/app/src
+      - ../FrontendPetproject/exam-prep-frontend/public:/app/public
+      - ../FrontendPetproject/exam-prep-frontend/index.html:/app/index.html
+      - ../FrontendPetproject/exam-prep-frontend/vite.config.js:/app/vite.config.js
+
+volumes:
+  mysql-data:
