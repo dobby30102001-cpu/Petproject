@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @Slf4j
-@RequestMapping("/api/auth/admin/")
+@RequestMapping("/api/v1/admin/security")
 public class AdminSecurityController {
     private final AuthenticationService authenticationService;
 
