@@ -3,7 +3,9 @@ package com.example.examprepbackend.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -15,6 +17,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -31,16 +34,13 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-                // bật CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // k can token de test
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
-//                        cần phải login
-//
-//                        .requestMatchers("/api/auth/**").permitAll()
-//
-//                        .anyRequest().authenticated()
+                        .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/teacher/**").hasAnyRole("TEACHER", "ADMIN")
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter,
                         UsernamePasswordAuthenticationFilter.class);

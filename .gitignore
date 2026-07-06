@@ -1,0 +1,5 @@
+# Environment variables loaded by docker compose — must never be committed.
+.env
+
+# Local Claude Code session state.
+.claude/

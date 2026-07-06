@@ -21,8 +21,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ngoquangtruongx4@gmail.com  # Gmail gửi đi
-    password: teyh srrf nuqo phgk   # App Password Gmail
+    username: ${MAIL_USERNAME:ngoquangtruongx4@gmail.com}
+    password: ${MAIL_PASSWORD:teyh srrf nuqo phgk}
     properties:
       mail:
         smtp:
@@ -34,8 +34,8 @@ spring:
           writetimeout: 5000
 
 jwt:
-  secret: my-super-secret-key-my-super-secret-key
-  expiration: 18000000 # 5 tiếng (5 * 60 * 60 * 1000) bị out token
+  secret: ${JWT_SECRET:my-super-secret-key-my-super-secret-key}
+  expiration: ${JWT_EXPIRATION:18000000} # 5 tiếng (5 * 60 * 60 * 1000) bị out token
 
 ##debug
 #logging:

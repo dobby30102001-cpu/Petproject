@@ -255,6 +255,8 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         validateAttemptCanBeSubmitted(attempt);
 
         Exam exam = attempt.getExam();
+        validateAttemptNotExpired(attempt, exam);
+
         List<Question> questions = questionRepository.findQuestionsByExamId(exam.getId());
 
         if (questions.isEmpty()) {
@@ -347,6 +349,24 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
 
         if (attempt.getStatus() != AttemptStatus.IN_PROGRESS) {
             throw new BadRequestException("This attempt is not in a submittable state");
+        }
+    }
+
+    // Reject a submission that arrives after startTime + exam.duration.
+    // A short grace window absorbs client/server clock drift.
+    private static final Duration SUBMIT_GRACE = Duration.ofSeconds(30);
+
+    private void validateAttemptNotExpired(ExamAttempt attempt, Exam exam) {
+        if (attempt.getStartTime() == null || exam == null || exam.getDuration() == null) {
+            return;
+        }
+        java.time.LocalTime duration = exam.getDuration();
+        Duration allowed = Duration.ofHours(duration.getHour())
+                .plusMinutes(duration.getMinute())
+                .plusSeconds(duration.getSecond());
+        LocalDateTime deadline = attempt.getStartTime().plus(allowed).plus(SUBMIT_GRACE);
+        if (LocalDateTime.now().isAfter(deadline)) {
+            throw new BadRequestException("This attempt has expired and can no longer be submitted");
         }
     }
 

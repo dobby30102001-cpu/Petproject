@@ -1,8 +1,0 @@
-drop
-database if exists exam_management_system;
-create
-database exam_management_system;
-use
-exam_management_system;
-
--- (backup of original data.sql)
