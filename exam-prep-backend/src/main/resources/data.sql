@@ -1,9 +1,7 @@
-DROP
-    DATABASE IF EXISTS exam_management_system;
-CREATE
-    DATABASE exam_management_system;
-USE
-    exam_management_system;
+
+DROP DATABASE IF EXISTS exam_management_system;
+CREATE DATABASE exam_management_system;
+USE exam_management_system;
 
 -- ================= CLASSES =================
 CREATE TABLE classes

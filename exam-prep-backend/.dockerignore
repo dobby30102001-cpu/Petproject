@@ -1,0 +1,7 @@
+target/
+.idea/
+*.iml
+.vscode/
+.git/
+startup.log
+node_modules/
